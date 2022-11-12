@@ -159,43 +159,38 @@ def resnet20_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [3, 3, 3], **kwargs)
     return model
 
-                
-def resnet20_cifar(**kwargs):
-    model = ResNet_Cifar(BasicBlock, [3, 3, 3], **kwargs)
-    return model
-
-
-def resnet32_cifar(**kwargs):
+ 
+def resnet32_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [5, 5, 5], **kwargs)
     return model
 
 
-def resnet44_cifar(**kwargs):
+def resnet44_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [7, 7, 7], **kwargs)
     return model
 
 
-def resnet56_cifar(**kwargs):
+def resnet56_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [9, 9, 9], **kwargs)
     return model
 
 
-def resnet110_cifar(**kwargs):
+def resnet110_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [18, 18, 18], **kwargs)
     return model
 
 
-def resnet1202_cifar(**kwargs):
+def resnet1202_quant(**kwargs):
     model = ResNet_Cifar(BasicBlock, [200, 200, 200], **kwargs)
     return model
 
 
-def resnet164_cifar(**kwargs):
+def resnet164_quant(**kwargs):
     model = ResNet_Cifar(Bottleneck, [18, 18, 18], **kwargs)
     return model
 
 
-def resnet1001_cifar(**kwargs):
+def resnet1001_quant(**kwargs):
     model = ResNet_Cifar(Bottleneck, [111, 111, 111], **kwargs)
     return model
 

@@ -37,6 +37,7 @@ def weight_quantization(b):
             grad_alpha = (grad_output*(sign*i + (0.0)*(1-i))).sum()
             # above line, if i = True,  and sign = +1, "grad_alpha = grad_output * 1"
             #             if i = False, "grad_alpha = grad_output * (input_q-input)"
+            grad_input = grad_input*(1-i)
             return grad_input, grad_alpha
 
     return _pq().apply
