@@ -14,14 +14,15 @@ input  [psum_bw-1:0] in_n;
 input  clk;
 input  reset;
 
-reg [1:0] inst_q
+reg [1:0] inst_q;
 reg [bw-1:0] a_q;
 reg [bw-1:0] b_q;
 reg [psum_bw-1:0] c_q;
 reg load_ready_q;
+wire [psum_bw-1:0] mac_out;
 
 always @(posedge clk) begin
-	if (rst) begin
+	if (reset) begin
 		// reset
 		inst_q <= 2'b0;
 		load_ready_q <= 1'b1;
