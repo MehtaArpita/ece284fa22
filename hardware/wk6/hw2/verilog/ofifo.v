@@ -32,7 +32,7 @@ module ofifo (clk, in, out, rd, wr, o_full, reset, o_ready, o_valid);
 	 .rd(rd_en),
 	 .wr(wr[i]),
    .o_empty(empty[i]),
-   .o_full(o_full[i]),
+   .o_full(full[i]),
 	 .in(in[(i+1)*bw-1:i*bw]),
 	 .out(out[(i+1)*bw-1:i*bw]),
    .reset(reset));
@@ -43,13 +43,9 @@ module ofifo (clk, in, out, rd, wr, o_full, reset, o_ready, o_valid);
    if (reset) begin
       rd_en <= 0;
    end
-   else
-    if (rd) begin 
+   else if (rd) begin 
       rd_en = 1;
- 
+   end 
   end
-
-
- 
 
 endmodule
