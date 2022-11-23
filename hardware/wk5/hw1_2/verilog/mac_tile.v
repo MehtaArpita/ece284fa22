@@ -57,6 +57,7 @@ mac #(.bw(bw), .psum_bw(psum_bw)) mac_instance (
 assign out_e = a_q;
 assign inst_e = inst_q;
 assign out_s = mac_out ;
+assign c_q = in_n;
 
 
 endmodule
