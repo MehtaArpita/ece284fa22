@@ -42,11 +42,12 @@ module l0 (clk, in, out, rd, wr, o_full, reset, o_ready);
    if (reset) begin
       rd_en <= 8'b00000000;
    end
-   else
+   else 
 
       /////////////// version1: read all row at a time ////////////////
-      //if (rd) begin 
+      //else if (rd) begin 
         //rd_en <= 8'b11111111;
+      //end 
       ///////////////////////////////////////////////////////
 
 
