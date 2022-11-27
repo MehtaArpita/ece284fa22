@@ -66,27 +66,28 @@ always @(posedge clk or negedge rst) begin
 				  symbolLength <= 4'd1;
 
 		 end
-		 else begin             // [8:7] == 2'b11 -> Go to checks for length 5 codes (First One)
-	               if (load)  begin 
-	               	case (symbolLength)
-
-	               	4'd1 : begin 
-	               			lower_reg <= {lower_reg[8:0], encodedData[9]};
-	               		   end 
-	               	4'd4 : begin 
-	               			lower_reg <= {lower_reg[5:0], encodedData[9:6]};
-	               		   end 
-	               	4'd5 : begin 
-	               			lower_reg <= {lower_reg[4:0], encodedData[9:5]};
-	               		   end 
-	               	4'd6 : begin 
-	               			lower_reg <= lower_reg <= {lower_reg[3:0], encodedData[9:4]};
-	               		   end 
-					endcase
-				   end	               		   	          
+		 else begin             // [8:7] == 2'b11 -> Go to checks for length 5 codes (First One)	               		   	          
 	               state <= 'd3;    
 				   ready <= 1'b0;
 		 end
+
+		 	if (load)  begin 
+	            case (symbolLength)
+
+	            4'd1 : begin 
+	               	lower_reg <= {lower_reg[8:0], encodedData[9]};
+	               		end 
+	            4'd4 : begin 
+	               	lower_reg <= {lower_reg[5:0], encodedData[9:6]};
+	               		end 
+	            4'd5 : begin 
+	               	lower_reg <= {lower_reg[4:0], encodedData[9:5]};
+	               		end 
+	            4'd6 : begin 
+	               	lower_reg <= lower_reg <= {lower_reg[3:0], encodedData[9:4]};
+	               		end 
+				endcase
+			end
 	  end
 	  'd3: begin   // Check if the 4 length codes are contained in input  
 	          case (upper_reg[9:6])
