@@ -6,9 +6,9 @@ module HuffmanDecoder_tb (symbolLength, decodedData, ready, encodedData, load, c
 
 input [3:0] decodedData;  
 input [3:0] symbolLength;  
-input [3:0]      ready;
+input       ready;
 
-output reg [9:0] encodedData;  
+output reg [5:0] encodedData;  
 output reg       clk;  
 output reg       rst;  
 output reg       load; 
@@ -45,26 +45,26 @@ always @(negedge clk ) begin
        if (ready == 1'b1) begin
           if (symbolLength == 4'd1)begin 
  
-			encodedData[9:0] = {encodedData[8:0], input1[401]};
+			encodedData[5:0] = {encodedData[4:0], input1[401]};
 			input1<= input1 <<1;
 			end
 		  else if (symbolLength == 4'd4)begin 
               
-			encodedData[9:0] = {encodedData[5:0], input1[401:398]};
+			encodedData[5:0] = {encodedData[1:0], input1[401:398]};
 			input1<= input1 <<4;
 			end 
 		 else if (symbolLength == 4'd5)begin 
               
-			encodedData[9:0] = {encodedData[4:0], input1[401:397]};
+			encodedData[5:0] = {encodedData[0], input1[401:397]};
 			input1<= input1 <<5;
 			end 
 		 else if (symbolLength == 4'd6) begin   
-			encodedData[9:0] = {encodedData[3:0], input1[401:396]};
+			encodedData[5:0] = input1[401:396];
 			input1<= input1 <<6;
 			end 
 		else if (symbolLength == 4'd10) begin
-		    encodedData = input1[401:392];
-			input1 <= input1<<10;
+		    encodedData = input1[401:396];
+			input1 <= input1<<6;
 		end
 		load = 1'b1;
        end
