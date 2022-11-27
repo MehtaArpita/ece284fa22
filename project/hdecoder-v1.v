@@ -58,7 +58,7 @@ always @(posedge clk or negedge rst) begin
 	  'd2: begin   // Check if the 1 length code is contained in input  
 	         if  (upper_reg[5]) begin
 	              symbol <= 4'b0;
-				  upper_reg <= {upper_reg[4:0], lower_reg[9]};
+				  upper_reg <= {upper_reg[4:0], lower_reg[5]};
 		          //lower_reg <= {lower_reg[8:0], encodedData[9]};
 				  state <= 'd2;
 				  enable <= 1'b1;
