@@ -37,7 +37,7 @@ reg[401:0] input1 = 402'b0000000011110111111101111111111110111111111111111111111
 //x_file = $fopen("huffman_VGG_data.txt", "r");
 //x_scan_file = $fscanf(x_file,"%402b", input1);
 
-always @(negedge clk or negedge rst) begin
+always @(negedge clk ) begin
    if (!rst) begin
        load = 1'b0;
    end
