@@ -26,20 +26,23 @@ always @(posedge clk) begin
 		// reset
 		inst_q <= 2'b0;
 		load_ready_q <= 1'b1;
+		a_q <= 0;
+		b_q <= 0;
+		c_q <= 0;
 		
 	end
 	else begin
 		inst_q[1] <= inst_w[1];
+		c_q <= in_n;
 
-		if (inst_w[1] && load_ready_q) begin
+		if (inst_w[0] && load_ready_q) begin
 			b_q <= in_w;
 			load_ready_q <= 1'b0;
 		end 
 		else if (~load_ready_q) begin 
 			inst_q[0] <= inst_w[0];
 		end 
-
-		if (inst_w != 2'b0) begin 
+		else if (inst_w != 2'b0) begin 
 			a_q <= in_w;
 		end 
 	end
@@ -57,7 +60,6 @@ mac #(.bw(bw), .psum_bw(psum_bw)) mac_instance (
 assign out_e = a_q;
 assign inst_e = inst_q;
 assign out_s = mac_out ;
-assign c_q = in_n;
 
 
 endmodule
