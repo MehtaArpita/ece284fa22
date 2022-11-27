@@ -58,9 +58,9 @@ always @(posedge clk or negedge rst) begin
 	  'd2: begin   // Check if the 1 length code is contained in input  
 	         if  (upper_reg[5]) begin
 	              symbol <= 4'b0;
-				  upper_reg <= {upper_reg[4:0], lower_reg[5]};
+				  //upper_reg <= {upper_reg[4:0], lower_reg[5]};
 		          //lower_reg <= {lower_reg[8:0], encodedData[9]};
-				  state <= 'd2;
+				  state <= 'd6;
 				  enable <= 1'b1;
 	              ready <= 1'b1;
 				  symbolLength <= 4'd1;
@@ -70,79 +70,61 @@ always @(posedge clk or negedge rst) begin
 	               state <= 'd3;    
 				   ready <= 1'b0;
 		 end
-
-		 	if (load)  begin 
-	            case (symbolLength)
-
-	            4'd1 : begin 
-	               	lower_reg <= {lower_reg[4:0], encodedData[5]};
-	               		end 
-	            4'd4 : begin 
-	               	lower_reg <= {lower_reg[1:0], encodedData[5:2]};
-	               		end 
-	            4'd5 : begin 
-	               	lower_reg <= {lower_reg[0], encodedData[5:1]};
-	               		end 
-	            4'd6 : begin 
-	               	lower_reg <= encodedData;
-	               		end 
-				endcase
-			end
 	  end
 	  'd3: begin   // Check if the 4 length codes are contained in input  
 	          case (upper_reg[5:2])
 				'b0111 :begin 
 						symbol <= 4'd9 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 				'b0101 :begin 
 						symbol <= 4'd2 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 			    'b0100 :begin 
 						symbol <= 4'd1 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 				'b0011 :begin 
 						symbol <= 4'd6 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 				'b0010 :begin 
 						symbol <= 4'd5 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 				'b0000 :begin 
 						symbol <= 4'd10 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd4;
-						upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
 				default : begin  state <= 'd4;
@@ -155,10 +137,10 @@ always @(posedge clk or negedge rst) begin
 	              if  (upper_reg[5:1] == 5'b01101) begin 
 		          symbol <= 5'd7;  // M
 		          enable <= 1'b1;
-	                  state <= 'd2;    // -> Go back to checks for length 3 codes
+	                  state <= 'd6;    // -> Go back to checks for length 3 codes
 		          ready <= 1'b1;
                           symbolLength <= 4'd5;
-		          upper_reg <= {upper_reg[0], lower_reg[5:1]};
+		          //upper_reg <= {upper_reg[0], lower_reg[5:1]};
 		          //lower_reg <= {lower_reg[4:0], encodedData[9:5]};
 		      end
 
@@ -173,59 +155,88 @@ always @(posedge clk or negedge rst) begin
 				'b011000 :begin 
 						symbol <= 4'd3 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
 				'b011001 :begin 
 						symbol <= 4'd4 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
 			    'b000110 :begin 
 						symbol <= 4'd8 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
 				'b000111 :begin 
 						symbol <= 4'd12 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
 				'b000100 :begin 
 						symbol <= 4'd14 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
 				'b000101 :begin 
 						symbol <= 4'd15 ;
 						enable <= 1'b1;
-						state <= 'd2;
+						state <= 'd6;
 						ready <= 1'b1;
 						symbolLength <= 4'd6;
-						upper_reg <= lower_reg;
+						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
+				endcase
+	  		end
 
-			   endcase
+	  'd6: begin   // Check if the 1 length code is contained in input  
+	  		ready <= 1'b0;
+		 	if (load)  begin 
+	            case (symbolLength)
+
+	            4'd1 : begin 
+	               	lower_reg <= {lower_reg[4:0], encodedData[5]};
+	               	upper_reg <= {upper_reg[4:0], lower_reg[5]};
+	               	state <= 'd2;
+	               		end 
+	            4'd4 : begin 
+	               	lower_reg <= {lower_reg[1:0], encodedData[5:2]};
+	               	upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+	               	state <= 'd2;
+	               		end 
+	            4'd5 : begin 
+	               	lower_reg <= {lower_reg[0], encodedData[5:1]};
+	               	upper_reg <= {upper_reg[0], lower_reg[5:1]};
+	               	state <= 'd2;
+
+	               		end 
+	            4'd6 : begin 
+	               	lower_reg <= encodedData;
+	               	upper_reg <= lower_reg;
+	               	state <= 'd2;
+	               		end 
+				endcase
+			end
 	  end
 
      endcase // end case statement
