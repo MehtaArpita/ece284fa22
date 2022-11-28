@@ -237,6 +237,9 @@ always @(posedge clk or negedge rst) begin
 	               		end 
 				endcase
 			end
+			else begin 
+				state <= 'd6;
+			end 
 	  end
 
      endcase // end case statement
