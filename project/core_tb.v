@@ -10,27 +10,36 @@ parameter len_kij = 9;
 parameter len_onij = 16;
 parameter col = 8;
 parameter row = 8;
-parameter len_nij = 36;
+parameter len_nij = 36; //check 
 
 reg clk = 0;
 reg reset = 1;
 
-wire [33:0] inst_q; 
+wire [34:0] inst_q; 
 
 reg [1:0]  inst_w_q = 0; 
-reg [bw*row-1:0] D_xmem_q = 0;
-reg CEN_xmem = 1;
-reg WEN_xmem = 1;
-reg [10:0] A_xmem = 0;
+    
+reg [bw*row-1:0] D_xmem_q = 0; //value I want to write into 
 reg CEN_xmem_q = 1;
 reg WEN_xmem_q = 1;
 reg [10:0] A_xmem_q = 0;
+    
+    
+reg CEN_xmem = 1; // CEN =1 means enable for reading or writing from memory is off
+reg WEN_xmem = 1; // WEN= 1 means write is off 
+reg [10:0] A_xmem = 0; //address value to write or read from in xmem is 0
+reg [bw*row-1:0] D_xmem;
+
 reg CEN_pmem = 1;
 reg WEN_pmem = 1;
 reg [10:0] A_pmem = 0;
+    
+    
 reg CEN_pmem_q = 1;
 reg WEN_pmem_q = 1;
 reg [10:0] A_pmem_q = 0;
+    
+    
 reg ofifo_rd_q = 0;
 reg ififo_wr_q = 0;
 reg ififo_rd_q = 0;
@@ -42,7 +51,7 @@ reg acc_q = 0;
 reg acc = 0;
 
 reg [1:0]  inst_w; 
-reg [bw*row-1:0] D_xmem;
+
 reg [psum_bw*col-1:0] answer;
 
 
@@ -53,10 +62,15 @@ reg l0_rd;
 reg l0_wr;
 reg execute;
 reg load;
+reg load_encoded;
 reg [8*30:1] stringvar;
 reg [8*30:1] w_file_name;
 wire ofifo_valid;
 wire [col*psum_bw-1:0] sfp_out;
+reg relu = 0;
+reg relu_q = 0;
+
+reg A_dataserial[401:0];
 
 integer x_file, x_scan_file ; // file_handler
 integer w_file, w_scan_file ; // file_handler
@@ -65,7 +79,8 @@ integer out_file, out_scan_file ; // file_handler
 integer captured_data; 
 integer t, i, j, k, kij;
 integer error;
-
+assign inst_q[35] = start_decoding;
+assign inst_q[34] = relu_q;
 assign inst_q[33] = acc_q;
 assign inst_q[32] = CEN_pmem_q;
 assign inst_q[31] = WEN_pmem_q;
@@ -80,15 +95,16 @@ assign inst_q[3]   = l0_rd_q;
 assign inst_q[2]   = l0_wr_q;
 assign inst_q[1]   = execute_q; 
 assign inst_q[0]   = load_q; 
-
+reg [bw*row-1:0] D_2D [63:0];
 
 core  #(.bw(bw), .col(col), .row(row)) core_instance (
-	.clk(clk), 
-	.inst(inst_q),
-	.ofifo_valid(ofifo_valid),
-        .D_xmem(D_xmem_q), 
-        .sfp_out(sfp_out), 
-	.reset(reset)); 
+  .clk(clk), 
+  .inst(inst_q),
+  .ofifo_valid(ofifo_valid),
+  .D_xmem(D_xmem_q), 
+  .activation_serial(A_dataserial)
+  .sfp_out(sfp_out), 
+  .reset(reset)); 
 
 
 initial begin 
@@ -105,15 +121,17 @@ initial begin
   l0_wr    = 0;
   execute  = 0;
   load     = 0;
+  relu = 0;
+  load_encoded = 0;
 
   $dumpfile("core_tb.vcd");
   $dumpvars(0,core_tb);
 
-  x_file = $fopen("activation_tile0.txt", "r");
+  x_file = $fopen("Huffman-vgg-data.txt", "r");    
   // Following three lines are to remove the first three comment lines of the file
-  x_scan_file = $fscanf(x_file,"%s", captured_data);
-  x_scan_file = $fscanf(x_file,"%s", captured_data);
-  x_scan_file = $fscanf(x_file,"%s", captured_data);
+  //x_scan_file = $fscanf(x_file,"%s", captured_data);
+  //x_scan_file = $fscanf(x_file,"%s", captured_data);
+  //x_scan_file = $fscanf(x_file,"%s", captured_data);
 
   //////// Reset /////////
   #0.5 clk = 1'b0;   reset = 1;
@@ -131,18 +149,21 @@ initial begin
   #0.5 clk = 1'b1;   
   /////////////////////////
 
-  /////// Activation data writing to memory ///////
-  for (t=0; t<len_nij; t=t+1) begin  
-    #0.5 clk = 1'b0;  x_scan_file = $fscanf(x_file,"%32b", D_xmem); WEN_xmem = 0; CEN_xmem = 0; if (t>0) A_xmem = A_xmem + 1;
+  /////// Activation data writing to register ///////
+    #0.5 clk = 1'b0;  
+    x_scan_file = $fscanf(x_file,"%402b", A_dataserial); 
     #0.5 clk = 1'b1;   
   end
 
-  #0.5 clk = 1'b0;  WEN_xmem = 1;  CEN_xmem = 1; A_xmem = 0;
+  #0.5 clk = 1'b0;  //switch off right and memory adrress is back to 0
+  WEN_xmem = 1;  
+  CEN_xmem = 1;   
+  A_xmem = 0;
   #0.5 clk = 1'b1; 
 
   $fclose(x_file);
   /////////////////////////////////////////////////
-
+  A_pmem = 11'b00000000000;
 
   for (kij=0; kij<9; kij=kij+1) begin  // kij loop
 
@@ -185,10 +206,15 @@ initial begin
 
     /////// Kernel data writing to memory ///////
 
-    A_xmem = 11'b10000000000;
+    A_xmem = 11'b10000000000; //1024
 
     for (t=0; t<col; t=t+1) begin  
-      #0.5 clk = 1'b0;  w_scan_file = $fscanf(w_file,"%32b", D_xmem); WEN_xmem = 0; CEN_xmem = 0; if (t>0) A_xmem = A_xmem + 1; 
+      #0.5 clk = 1'b0;  
+      w_scan_file = $fscanf(w_file,"%32b", D_xmem); 
+
+      WEN_xmem = 0; 
+      CEN_xmem = 0; 
+      if (t>0) A_xmem = A_xmem + 1; 
       #0.5 clk = 1'b1;  
     end
 
@@ -199,13 +225,41 @@ initial begin
 
 
     /////// Kernel data writing to L0 ///////
-    ...
+    A_xmem = 11'b10000000000;
+
+        for (t=0; t<col+1; t=t+1) begin  
+        #0.5 clk = 1'b0; 
+        WEN_xmem = 1; 
+        CEN_xmem = 0; 
+        if (t>0)  begin 
+        A_xmem = A_xmem + 1; 
+        l0_wr = 1;
+        end 
+        if (t == col) begin 
+        WEN_xmem = 1; 
+        CEN_xmem = 0;
+        end 
+        #0.5 clk = 1'b1;   
+    end
+
+    #0.5 clk = 1'b0;  WEN_xmem = 1;  CEN_xmem = 1; A_xmem = 0; l0_wr= 0;
+    #0.5 clk = 1'b1;
     /////////////////////////////////////
 
-
-
+    // #0.5 clk = 1'b0;
+    // l0_rd = 1;
+    // #0.5 clk = 1'b1;
     /////// Kernel loading to PEs ///////
-    ...
+
+    for (t=0; t<col; t=t+1) begin  
+        #0.5 clk = 1'b0; 
+        l0_rd = 1;
+        load = 1;
+        #0.5 clk = 1'b1;   
+    end
+
+    #0.5 clk = 1'b0; l0_rd= 0; load = 0;
+    #0.5 clk = 1'b1;
     /////////////////////////////////////
   
 
@@ -223,30 +277,70 @@ initial begin
 
 
 
-    /////// Activation data writing to L0 ///////
-    ...
-    /////////////////////////////////////
+    /////// Activation data decoding and writing to writing to L0 ///////
+    while (count < len_nij + 1) begin 
 
+    #0.5 clk = 1'b0;  load_encoded = 1;
+    if (decodedData_valid == 1) begin 
+      count = count + 1;
+    end 
+    #0.5 clk = 1'b1; 
+    end 
+
+    #0.5 clk = 1'b0;  load_encoded = 0; 
+    #0.5 clk = 1'b1;  
 
 
     /////// Execution ///////
-    ...
+    for (t=0; t<len_nij+1; t=t+1) begin  
+        #0.5 clk = 1'b0; 
+        // l0_rd = 1;
+        execute = 1;
+        #0.5 clk = 1'b1;   
+    end
+    for (i=0; i<row+col ; i=i+1) begin
+          #0.5 clk = 1'b0;
+          #0.5 clk = 1'b1;  
+      end
+
+    #0.5 clk = 1'b0; l0_rd= 0; execute = 0; //when will execute become 0? after other len_nij cycles? //DOUBT
+    #0.5 clk = 1'b1;
+    
+    
     /////////////////////////////////////
-
-
-
+    #0.5 clk = 1'b0; 
+    ofifo_rd = 1;
+    #0.5 clk = 1'b1;
+    #0.5 clk = 1'b0; 
+    // ofifo_rd = 1;
+    #0.5 clk = 1'b1;
     //////// OFIFO READ ////////
     // Ideally, OFIFO should be read while execution, but we have enough ofifo
     // depth so we can fetch out after execution.
-    ...
+    
+
+    for (t=0; t<len_nij+1; t=t+1) begin  
+        #0.5 clk = 1'b0; 
+        WEN_pmem = 0; 
+        CEN_pmem = 0; 
+       
+        // $display("%2d-th written data is %h", t, D_pmem);
+        if (t>0) A_pmem = A_pmem + 1; 
+       
+        #0.5 clk = 1'b1;   
+    end
+
+    #0.5 clk = 1'b0;  WEN_pmem = 1;  CEN_pmem = 1; ofifo_rd= 0;
+    #0.5 clk = 1'b1;
     /////////////////////////////////////
+    $display("Completed execution number: %d", kij);
 
 
   end  // end of kij loop
 
 
   ////////// Accumulation /////////
-  acc_file = $fopen("acc_address.txt", "r");
+  acc_file = $fopen("acc_address.txt", "r"); //Here i think the below comment is for acc_address
   out_file = $fopen("out.txt", "r");  /// out.txt file stores the address sequence to read out from psum memory for accumulation
                                       /// This can be generated manually or in
                                       /// pytorch automatically
@@ -287,22 +381,30 @@ initial begin
 
     for (j=0; j<len_kij+1; j=j+1) begin 
 
-      #0.5 clk = 1'b0;   
-        if (j<len_kij) begin CEN_pmem = 0; WEN_pmem = 1; acc_scan_file = $fscanf(acc_file,"%11b", A_pmem); end
-                       else  begin CEN_pmem = 1; WEN_pmem = 1; end
+      #0.5 clk = 1'b0;  relu = 0; 
+        if (j<len_kij) begin 
+            CEN_pmem = 0; 
+            WEN_pmem = 1; 
+            acc_scan_file = $fscanf(acc_file,"%11b", A_pmem); 
+        end
+        else  begin CEN_pmem = 1; WEN_pmem = 1; end
 
         if (j>0)  acc = 1;  
+        // if(j==9) relu=1;
       #0.5 clk = 1'b1;   
     end
-
-    #0.5 clk = 1'b0; acc = 0;
+    
+    #0.5 clk = 1'b0; acc = 0;relu = 1;
     #0.5 clk = 1'b1; 
+    #0.5 clk = 1'b0;relu = 0;
+    #0.5 clk = 1'b1; 
+
   end
 
 
   if (error == 0) begin
-  	$display("############ No error detected ##############"); 
-  	$display("########### Project Completed !! ############"); 
+    $display("############ No error detected ##############"); 
+    $display("########### Project Completed !! ############"); 
 
   end
 
@@ -335,11 +437,9 @@ always @ (posedge clk) begin
    l0_wr_q    <= l0_wr ;
    execute_q  <= execute;
    load_q     <= load;
+   relu_q <= relu;
 end
 
 
 endmodule
-
-
-
 
