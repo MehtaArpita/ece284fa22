@@ -12,7 +12,7 @@ output reg  ready;           //
 input [5:0] encodedData;     // 10 bits sliding window; equals the maximum length of encoded data
 input       clk;             // Clock
 input       rst;             // Active Low Reset
-input   reg load;            // Load input data when asserted
+input      load;            // Load input data when asserted
 
 reg [2:0] state;                   // FSM State
 reg enable;                  // Enable signal to LUT
@@ -40,8 +40,10 @@ always @(posedge clk ) begin
        case (state)
           3'd0: begin   // Load input data into lower register
 	         if (load) begin
-				lower_reg <= encodedData;
-	            state <= 3'd1;
+	         	upper_reg <= encodedData;
+				//lower_reg <= encodedData;
+	            state <= 3'd2;
+	            symbolLength_i <= 4'd0;
 	         end
 	         else state <= 3'd0;
 		 ready <= 1'b1;
@@ -51,7 +53,6 @@ always @(posedge clk ) begin
 	            upper_reg <= lower_reg;
 	            lower_reg <= encodedData;
 	            state <= 3'd2;
-	            symbolLength_i <= 4'd0;
 	         end
 	         else state <= 'd1;
 		 ready <= 1'b0;
@@ -216,24 +217,24 @@ always @(posedge clk ) begin
 				case (symbolLength_i)
 
 	            4'b1 : begin 
-	               	lower_reg <= {lower_reg[4:0], encodedData[5]};
-	               	upper_reg <= {upper_reg[4:0], lower_reg[5]};
+	               	//lower_reg <= {lower_reg[4:0], encodedData[5]};
+	               	upper_reg <= {upper_reg[4:0], encodedData[5]};
 	               	state <= 'd2;
 	               		end 
 	            4'b0100 : begin 
-	               	lower_reg <= {lower_reg[1:0], encodedData[5:2]};
-	               	upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
+	               	//lower_reg <= {lower_reg[1:0], encodedData[5:2]};
+	               	upper_reg <= {upper_reg[1:0], encodedData[5:2]};
 	               	state <= 'd2;
 	               		end 
 	            4'b0101 : begin 
-	               	lower_reg <= {lower_reg[0], encodedData[5:1]};
-	               	upper_reg <= {upper_reg[0], lower_reg[5:1]};
+	               	//lower_reg <= {lower_reg[0], encodedData[5:1]};
+	               	upper_reg <= {upper_reg[0], encodedData[5:1]};
 	               	state <= 'd2;
 
 	               		end 
 	            4'b0110 : begin 
-	               	lower_reg <= encodedData;
-	               	upper_reg <= lower_reg;
+	               	//lower_reg <= encodedData;
+	               	upper_reg <= encodedData;
 	               	state <= 'd2;
 	               		end 
 				endcase
