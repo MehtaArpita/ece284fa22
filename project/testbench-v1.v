@@ -25,7 +25,7 @@ initial begin
    $dumpvars(0,HuffmanDecoder_tb);
 
    rst = 1'b0;
-   #20 rst = 1'b1;
+   #45 rst = 1'b1;
 
 $display(" finished");
 #10000 $finish ;
