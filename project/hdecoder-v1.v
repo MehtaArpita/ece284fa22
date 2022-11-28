@@ -1,12 +1,13 @@
 `timescale 1ns/1ps
 
-module HuffmanDecoder (symbolLength, decodedData, ready, encodedData, load, clk, rst);
+module HuffmanDecoder (symbolLength, decodedData, ready, decodedData_valid, encodedData, load, clk, rst);
 
 
 //Outputs
 output  [3:0] decodedData;     //4 bits to represent 16 different data 
 output  [3:0] symbolLength;    //4 bits to represrnt upto length 16.
 output reg  ready;           //
+output reg 	decodedData_valid; 		// signifies valid 32 bit valid decoded data to be sent to L0;
 
 //Inputs
 input [5:0] encodedData;     // 10 bits sliding window; equals the maximum length of encoded data
@@ -18,8 +19,7 @@ reg [2:0] state;                   // FSM State
 reg enable;                  // Enable signal to LUT
 reg [3:0] symbol;                  // Symbol input to LUT -> Converts symbol to address for LUT
 reg [5:0] upper_reg;
-//reg [5:0] lower_reg;
-reg [3:0] symbolLength_i;
+reg [3:0] valid_count;
 
 //==============================================================
 // Main State Machine
@@ -33,17 +33,20 @@ always @(posedge clk ) begin
      enable <= 1'b0;
      symbol <= 5'b0;
      ready  <= 1'b1;
-     symbolLength_i <= 4'd10;
+     symbolLength <= 4'd10;
   end // end if (!rst)
   else begin
-  	enable <= 0;
+  	   enable <= 1'b0;
+  	   if (enable) begin 
+  	   	valid_count <= valid_count + 1;
+  	   	end
        case (state)
           3'd0: begin   // Load input data into lower register
 	         if (load) begin
 	         	upper_reg <= encodedData;
 				//lower_reg <= encodedData;
 	            state <= 3'd2;
-	            symbolLength_i <= 4'd0;
+	            symbolLength <= 4'd0;
 	         end
 	         else state <= 3'd0;
 		 ready <= 1'b0;
@@ -56,7 +59,7 @@ always @(posedge clk ) begin
 				  state <= 'd0;
 				  enable <= 1'b1;
 	              ready <= 1'b1;
-				  symbolLength_i <= 4'd1;
+				  symbolLength <= 4'd1;
 
 		 end
 		 else begin             // [8:7] == 2'b11 -> Go to checks for length 5 codes (First One)	               		   	          
@@ -71,7 +74,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -80,7 +83,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -89,7 +92,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -98,7 +101,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -107,7 +110,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -116,7 +119,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd4;
+						symbolLength <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -132,7 +135,7 @@ always @(posedge clk ) begin
 		          enable <= 1'b1;
 	                  state <= 'd0;    // -> Go back to checks for length 3 codes
 		          ready <= 1'b1;
-                          symbolLength_i <= 4'd5;
+                          symbolLength <= 4'd5;
 		          //upper_reg <= {upper_reg[0], lower_reg[5:1]};
 		          //lower_reg <= {lower_reg[4:0], encodedData[9:5]};
 		      end
@@ -150,7 +153,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -159,7 +162,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -168,7 +171,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -177,7 +180,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -186,7 +189,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -195,7 +198,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
-						symbolLength_i <= 4'd6;
+						symbolLength <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -207,6 +210,7 @@ always @(posedge clk ) begin
 end // end always
 
 
-assign decodedData = symbol ; 
-assign symbolLength = symbolLength_i ;
+assign decodedData = enable : {decodedData[27:0],symbol} ? decodedData ;
+assign decodedData_valid = ((valid_count == 3'd7) && enable) : 1 ? 0 ;
+
 endmodule
