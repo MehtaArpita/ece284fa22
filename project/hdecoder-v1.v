@@ -4,10 +4,10 @@ module HuffmanDecoder (symbolLength, decodedData, ready, decodedData_valid, enco
 
 
 //Outputs
-output  [31:0] decodedData;     //4 bits to represent 16 different data 
-output  [3:0] symbolLength;    //4 bits to represrnt upto length 16.
+output  reg [31:0] decodedData;     //4 bits to represent 16 different data 
+output  reg [3:0] symbolLength;    //4 bits to represrnt upto length 16.
 output reg  ready;           //
-output reg 	decodedData_valid; 		// signifies valid 32 bit valid decoded data to be sent to L0;
+output  	decodedData_valid; 		// signifies valid 32 bit valid decoded data to be sent to L0;
 
 //Inputs
 input [5:0] encodedData;     // 10 bits sliding window; equals the maximum length of encoded data
@@ -19,7 +19,7 @@ reg [2:0] state;                   // FSM State
 reg enable;                  // Enable signal to LUT
 reg [3:0] symbol;                  // Symbol input to LUT -> Converts symbol to address for LUT
 reg [5:0] upper_reg;
-reg [3:0] valid_count;
+reg [2:0] valid_count;
 
 //==============================================================
 // Main State Machine
@@ -34,6 +34,7 @@ always @(posedge clk ) begin
      symbol <= 5'b0;
      ready  <= 1'b1;
      symbolLength <= 4'd10;
+     valid_count <= 3'd0;
   end // end if (!rst)
   else begin
   	   enable <= 1'b0;
@@ -54,6 +55,7 @@ always @(posedge clk ) begin
 	  'd2: begin   // Check if the 1 length code is contained in input  
 	         if  (upper_reg[5]) begin
 	              symbol <= 4'b0;
+	              decodedData <= {decodedData[27:0],4'b0};
 				  //upper_reg <= {upper_reg[4:0], lower_reg[5]};
 		          //lower_reg <= {lower_reg[8:0], encodedData[9]};
 				  state <= 'd0;
@@ -71,6 +73,7 @@ always @(posedge clk ) begin
 	          case (upper_reg[5:2])
 				'b0111 :begin 
 						symbol <= 4'd9 ;
+						decodedData <= {decodedData[27:0],4'd9};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -80,6 +83,7 @@ always @(posedge clk ) begin
 						end
 				'b0101 :begin 
 						symbol <= 4'd2 ;
+						decodedData <= {decodedData[27:0],4'd2};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -89,6 +93,7 @@ always @(posedge clk ) begin
 						end
 			    'b0100 :begin 
 						symbol <= 4'd1 ;
+						decodedData <= {decodedData[27:0],4'd1};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -98,6 +103,7 @@ always @(posedge clk ) begin
 						end
 				'b0011 :begin 
 						symbol <= 4'd6 ;
+						decodedData <= {decodedData[27:0],4'd6};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -107,6 +113,7 @@ always @(posedge clk ) begin
 						end
 				'b0010 :begin 
 						symbol <= 4'd5 ;
+						decodedData <= {decodedData[27:0],4'd5};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -116,6 +123,7 @@ always @(posedge clk ) begin
 						end
 				'b0000 :begin 
 						symbol <= 4'd10 ;
+						decodedData <= {decodedData[27:0],4'd10};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -132,6 +140,7 @@ always @(posedge clk ) begin
 	  'd4: begin   // Check for the 5 length codes (Already have 011 checked till this point) 
 	              if  (upper_reg[5:1] == 5'b01101) begin 
 		          symbol <= 5'd7;  // M
+		          decodedData <= {decodedData[27:0],4'd7};
 		          enable <= 1'b1;
 	                  state <= 'd0;    // -> Go back to checks for length 3 codes
 		          ready <= 1'b1;
@@ -150,6 +159,7 @@ always @(posedge clk ) begin
 	          case (upper_reg[5:0])
 				'b011000 :begin 
 						symbol <= 4'd3 ;
+						decodedData <= {decodedData[27:0],4'd3};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -159,6 +169,7 @@ always @(posedge clk ) begin
 						end
 				'b011001 :begin 
 						symbol <= 4'd4 ;
+						decodedData <= {decodedData[27:0],4'd4};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -168,6 +179,7 @@ always @(posedge clk ) begin
 						end
 			    'b000110 :begin 
 						symbol <= 4'd8 ;
+						decodedData <= {decodedData[27:0],4'd8};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -177,6 +189,7 @@ always @(posedge clk ) begin
 						end
 				'b000111 :begin 
 						symbol <= 4'd12 ;
+						decodedData <= {decodedData[27:0],4'd12};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -186,6 +199,7 @@ always @(posedge clk ) begin
 						end
 				'b000100 :begin 
 						symbol <= 4'd14 ;
+						decodedData <= {decodedData[27:0],4'd14};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -195,6 +209,7 @@ always @(posedge clk ) begin
 						end
 				'b000101 :begin 
 						symbol <= 4'd15 ;
+						decodedData <= {decodedData[27:0],4'd15};
 						enable <= 1'b1;
 						state <= 'd0;
 						ready <= 1'b1;
@@ -210,7 +225,6 @@ always @(posedge clk ) begin
 end // end always
 
 
-assign decodedData = enable : {decodedData[27:0],symbol} ? decodedData ;
-assign decodedData_valid = ((valid_count == 3'd7) && enable) : 1 ? 0 ;
+assign decodedData_valid = ((valid_count == 3'd7) && enable) ? 1 : 0 ;
 
 endmodule

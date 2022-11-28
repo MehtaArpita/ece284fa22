@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module HuffmanDecoder_tb (symbolLength, decodedData, ready, decodedData_valid, encodedData, load, clk, rst);;
+module HuffmanDecoder_tb (symbolLength, decodedData, ready, decodedData_valid, encodedData, load, clk, rst);
 
 `define NULL 0
 
