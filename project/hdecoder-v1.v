@@ -210,9 +210,8 @@ always @(posedge clk or negedge rst) begin
 	  		end
 
 	  'd6: begin   // Check if the 1 length code is contained in input  
-	  		ready <= 1'b0;
-		 	if (load)  begin 
-	            case (symbolLength)
+	        if (load) begin
+				case (symbolLength)
 
 	            4'd1 : begin 
 	               	lower_reg <= {lower_reg[4:0], encodedData[5]};
@@ -236,12 +235,10 @@ always @(posedge clk or negedge rst) begin
 	               	state <= 'd2;
 	               		end 
 				endcase
-			end
-			else begin 
-				state <= 'd6;
-			end 
-	  end
-
+	         end
+	         else state <= 'd6;
+		 ready <= 1'b0;  
+		 end   
      endcase // end case statement
   end // end else 	
 end // end always
