@@ -39,37 +39,37 @@ reg[40:0] input1 = 41'b00001011111101111111011111111111101111111;
 
 always @(posedge clk ) begin
    if (!rst) begin
-       load = 1'b0;
+       load <= 1'b0;
    end
    else begin
        if (ready == 1'b1) begin
           if (symbolLength == 4'd1)begin 
  
-			encodedData[5:0] = {encodedData[4:0], input1[40]};
+			encodedData[5:0] <= {encodedData[4:0], input1[40]};
 			input1<= input1 <<1;
 			end
 		  else if (symbolLength == 4'd4)begin 
               
-			encodedData[5:0] = {encodedData[1:0], input1[40:37]};
+			encodedData[5:0] <= {encodedData[1:0], input1[40:37]};
 			input1<= input1 <<4;
 			end 
 		 else if (symbolLength == 4'd5)begin 
               
-			encodedData[5:0] = {encodedData[0], input1[40:36]};
+			encodedData[5:0] <= {encodedData[0], input1[40:36]};
 			input1<= input1 <<5;
 			end 
 		 else if (symbolLength == 4'd6) begin   
-			encodedData[5:0] = input1[401:396];
+			encodedData[5:0] <= input1[40:35];
 			input1<= input1 <<6;
 			end 
 		else if (symbolLength == 4'd10) begin
-		    encodedData = input1[40:35];
+		    encodedData <= input1[40:35];
 			input1 <= input1<<6;
 		end
-		load = 1'b1;
+		load <= 1'b1;
        end
        else
-          load = 1'b0;
+          load <= 1'b0;
 
    end //end else
 
