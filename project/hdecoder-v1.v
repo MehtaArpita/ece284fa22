@@ -4,7 +4,7 @@ module HuffmanDecoder (symbolLength, decodedData, ready, decodedData_valid, enco
 
 
 //Outputs
-output  [3:0] decodedData;     //4 bits to represent 16 different data 
+output  [31:0] decodedData;     //4 bits to represent 16 different data 
 output  [3:0] symbolLength;    //4 bits to represrnt upto length 16.
 output reg  ready;           //
 output reg 	decodedData_valid; 		// signifies valid 32 bit valid decoded data to be sent to L0;

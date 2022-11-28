@@ -1,12 +1,13 @@
 `timescale 1ns/1ps
 
-module HuffmanDecoder_tb (symbolLength, decodedData, ready, encodedData, load, clk, rst);
+module HuffmanDecoder_tb (symbolLength, decodedData, ready, decodedData_valid, encodedData, load, clk, rst);;
 
 `define NULL 0
 
-input [3:0] decodedData;  
+input [31:0] decodedData;  
 input [3:0] symbolLength;  
 input       ready;
+input  decodedData_valid;
 
 output reg [5:0] encodedData;  
 output reg       clk;  
