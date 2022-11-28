@@ -5,7 +5,7 @@ module HuffmanDecoder (symbolLength, decodedData, ready, encodedData, load, clk,
 
 //Outputs
 output  [3:0] decodedData;     //4 bits to represent 16 different data 
-output reg [3:0] symbolLength;    //4 bits to represrnt upto length 16.
+output  [3:0] symbolLength;    //4 bits to represrnt upto length 16.
 output reg  ready;           //
 
 //Inputs
@@ -19,6 +19,7 @@ reg enable;                  // Enable signal to LUT
 reg [3:0] symbol;                  // Symbol input to LUT -> Converts symbol to address for LUT
 reg [5:0] upper_reg;
 reg [5:0] lower_reg;
+reg [3:0] symbolLength_i;
 
 //==============================================================
 // Main State Machine
@@ -32,7 +33,7 @@ always @(posedge clk ) begin
      enable <= 1'b0;
      symbol <= 5'b0;
      ready  <= 1'b1;
-     symbolLength <= 4'd10;
+     symbolLength_i <= 4'd10;
   end // end if (!rst)
   else begin
   	enable <= 0;
@@ -50,7 +51,7 @@ always @(posedge clk ) begin
 	            upper_reg <= lower_reg;
 	            lower_reg <= encodedData;
 	            state <= 3'd2;
-	            symbolLength <= 4'd0;
+	            symbolLength_i <= 4'd0;
 	         end
 	         else state <= 'd1;
 		 ready <= 1'b0;
@@ -63,7 +64,7 @@ always @(posedge clk ) begin
 				  state <= 'd6;
 				  enable <= 1'b1;
 	              ready <= 1'b1;
-				  symbolLength <= 4'd1;
+				  symbolLength_i <= 4'd1;
 
 		 end
 		 else begin             // [8:7] == 2'b11 -> Go to checks for length 5 codes (First One)	               		   	          
@@ -78,7 +79,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -87,7 +88,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -96,7 +97,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -105,7 +106,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -114,7 +115,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -123,7 +124,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd4;
+						symbolLength_i <= 4'd4;
 						//upper_reg <= {upper_reg[1:0], lower_reg[5:2]};
 		                //lower_reg <= {lower_reg[5:0], encodedData[9:6]};
 						end
@@ -139,7 +140,7 @@ always @(posedge clk ) begin
 		          enable <= 1'b1;
 	                  state <= 'd6;    // -> Go back to checks for length 3 codes
 		          ready <= 1'b1;
-                          symbolLength <= 4'd5;
+                          symbolLength_i <= 4'd5;
 		          //upper_reg <= {upper_reg[0], lower_reg[5:1]};
 		          //lower_reg <= {lower_reg[4:0], encodedData[9:5]};
 		      end
@@ -149,7 +150,7 @@ always @(posedge clk ) begin
 		          ready <= 1'b0;
 		      end
 	  end
-	  'd5: begin   // Check for the 6 length codes (Already have checked 0111 till this point) 
+	  'd5: begin   // Check for the 6 length codes (Already have checked 0111 till thispoint) 
 
 	          case (upper_reg[5:0])
 				'b011000 :begin 
@@ -157,7 +158,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -166,7 +167,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -175,7 +176,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -184,7 +185,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -193,7 +194,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -202,7 +203,7 @@ always @(posedge clk ) begin
 						enable <= 1'b1;
 						state <= 'd6;
 						ready <= 1'b1;
-						symbolLength <= 4'd6;
+						symbolLength_i <= 4'd6;
 						//upper_reg <= lower_reg;
 		                //lower_reg <= {lower_reg[3:0], encodedData[9:4]};
 						end
@@ -210,8 +211,9 @@ always @(posedge clk ) begin
 	  		end
 
 	  'd6: begin   // Check if the 1 length code is contained in input  
-	        if (load) begin
-				case (symbolLength)
+	  		ready <= 1'b0; 
+	        if (load == 1'b1) begin
+				case (symbolLength_i)
 
 	            4'd1 : begin 
 	               	lower_reg <= {lower_reg[4:0], encodedData[5]};
@@ -237,12 +239,13 @@ always @(posedge clk ) begin
 				endcase
 	         end
 	         else state <= 'd6;
-		 ready <= 1'b0;  
-		 end   
+		 end 
+
      endcase // end case statement
   end // end else 	
 end // end always
 
 
 assign decodedData = symbol ; 
+assign symbolLength = symbolLength_i ;
 endmodule
