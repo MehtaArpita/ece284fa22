@@ -24,7 +24,7 @@ reg [5:0] lower_reg;
 // Main State Machine
 //==============================================================
 
-always @(posedge clk or negedge rst) begin
+always @(posedge clk ) begin
   if (!rst) begin
      upper_reg <= 10'b0;
      lower_reg <= 10'b0;
