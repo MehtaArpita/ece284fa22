@@ -28,7 +28,7 @@ reg [3:0] symbolLength_i;
 always @(posedge clk ) begin
   if (!rst) begin
      upper_reg <= 10'b0;
-     lower_reg <= 10'b0;
+     //lower_reg <= 10'b0;
      state <= 3'd0;
      enable <= 1'b0;
      symbol <= 5'b0;
